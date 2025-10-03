@@ -3,21 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Journal</title>
-  <link rel="stylesheet" href="./style,css">
-  <link rel="manifest" href="manifest.json">
+  <title>Hopp Notes</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
+  <script defer src="main.js"></script>
 </head>
 <body>
   <div id="login">
-    <button id="loginBtn">Login con Dropbox</button>
+    <h2>Iniciar sesión con Dropbox</h2>
+    <button id="loginBtn">Login Dropbox</button>
   </div>
 
   <div id="dashboard" style="display:none;">
-    <h1>Mis Notas</h1>
-    <button id="syncBtn">Sincronizar con Dropbox</button>
+    <h2>Mis notas</h2>
+    <button id="syncBtn">Sincronizar notas</button>
     <div id="notes"></div>
   </div>
-  <script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
-  <script src="main.js"></script>
 </body>
 </html>
