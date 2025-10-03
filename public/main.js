@@ -1,10 +1,16 @@
-const APP_KEY = "9j2w7gkmnw7looi"; // reemplaza con tu App Key de Dropbox
+const APP_KEY = "9j2w7gkmnw7looi";
+const REDIRECT_URI = "https://spicelui.github.io/hopp/public/index.html"; // tu redirect exacto
 
 // ------------------- Login -------------------
 document.getElementById("loginBtn").addEventListener("click", () => {
   sessionStorage.removeItem("dropboxToken"); // limpia token viejo
-  const redirectUri = encodeURIComponent(window.location.href);
-  const authUrl = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${APP_KEY}&redirect_uri=${redirectUri}`;
+  const authUrl = `https://www.dropbox.com/oauth2/authorize
+    ?response_type=token
+    &client_id=${APP_KEY}
+    &redirect_uri=${encodeURIComponent(REDIRECT_URI)}
+    &token_access_type=online
+    &scope=files.metadata.read files.content.read files.content.write`
+    .replace(/\s+/g, ""); // quita saltos de línea
   window.location.href = authUrl;
 });
 
@@ -35,18 +41,11 @@ async function syncNotes() {
   const token = sessionStorage.getItem("dropboxToken");
   if (!token) return alert("Debes iniciar sesión primero");
 
-  const dbx = new Dropbox.Dropbox({
-    accessToken: token
-  });
+  const dbx = new Dropbox.Dropbox({ accessToken: token });
 
   try {
-    // Lista archivos en la raíz de la app folder
-    try {
-      const folder = await dbx.filesListFolder({ path: '' });
-      console.log("Archivos en la app folder:", folder.entries);
-    } catch(err) {
-      console.error("Error al listar carpeta:", err.error_summary || err);
-    }
+    const folder = await dbx.filesListFolder({ path: '' });
+    console.log("Archivos en la app folder:", folder.entries);
 
     document.getElementById("notes").innerHTML = "";
 
@@ -77,5 +76,3 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
-
-
