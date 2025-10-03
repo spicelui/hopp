@@ -1,7 +1,7 @@
 const APP_KEY = "9j2w7gkmnw7looi"; // pon aquí tu App Key de Dropbox
 
 document.getElementById("loginBtn").addEventListener("click", () => {
-  const redirectUri = encodeURIComponent('https://spicelui.github.io/hopp/public/index.html');
+  const redirectUri = encodeURIComponent(window.location.href);
   const authUrl = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${APP_KEY}&redirect_uri=${redirectUri}`;
   window.location.href = authUrl;
 });
@@ -36,20 +36,25 @@ async function syncNotes() {
     const folder = await dbx.filesListFolder({ path: '/journal' });
     document.getElementById("notes").innerHTML = "";
 
-    for (const file of folder.entries) {
-      const content = await dbx.filesDownload({ path: file.path_lower });
-      const text = new TextDecoder().decode(content.fileBinary);
-      try {
-        const json = JSON.parse(text);
-        displayNote(json);
-      } catch(e) {
-        console.warn("Archivo no es JSON válido:", file.name);
+    for (const file of folder.result.entries) {
+      if (file['.tag'] === 'file') {
+        const content = await dbx.filesDownload({ path: file.path_lower });
+        const blob = content.result.fileBlob || content.fileBlob;
+        const text = await blob.text();
+
+        try {
+          const json = JSON.parse(text);
+          displayNote(json);
+        } catch (e) {
+          console.warn("Archivo no es JSON válido:", file.name, text);
+        }
       }
     }
   } catch (err) {
-    console.error(err);
+    console.error("Error en syncNotes:", err);
   }
 }
+
 
 function displayNote(note) {
   const notesDiv = document.getElementById("notes");
@@ -57,4 +62,3 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
-
