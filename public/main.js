@@ -36,7 +36,9 @@ async function syncNotes() {
   });
 
   try {
-    const folder = await dbx.filesListFolder({ path: '/journal' });
+    const folder = await dbx.filesListFolder({ path: '' });
+    console.log("Entries de la app folder:", folder.entries);
+
     document.getElementById("notes").innerHTML = "";
 
     for (const file of folder.entries) {
@@ -61,6 +63,7 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
 
 
