@@ -35,7 +35,9 @@ async function syncNotes() {
   const token = sessionStorage.getItem("dropboxToken");
   if (!token) return alert("Debes iniciar sesión primero");
 
-  const dbx = new Dropbox.Dropbox({ accessToken: token });
+  const dbx = new Dropbox.Dropbox({
+    accessToken: token
+  });
 
   try {
     // Lista archivos en la raíz de la app folder
@@ -71,3 +73,4 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
