@@ -36,9 +36,9 @@ async function syncNotes() {
   });
 
   try {
-    // Listar archivos directamente en la raíz de la app folder
-    const folder = await dbx.filesListFolder({ path: '' });
-    console.log("Entries de la app folder:", folder.entries);
+   
+   const folder = await dbx.filesListFolder({ path: '' });
+   console.log("Contenido de la app folder:", folder.entries);
 
     document.getElementById("notes").innerHTML = "";
 
@@ -69,9 +69,3 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
-
-
-
-
-
-
