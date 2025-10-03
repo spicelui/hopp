@@ -31,25 +31,23 @@ async function syncNotes() {
   if (!token) return alert("Debes iniciar sesión primero");
 
   const dbx = new Dropbox.Dropbox({
-    accessToken: token
+    accessToken: token,
+    fetch: (...args) => fetch(...args)  // FIX
   });
 
   try {
     const folder = await dbx.filesListFolder({ path: '/journal' });
     document.getElementById("notes").innerHTML = "";
 
-    for (const file of folder.result.entries) {
-      if (file['.tag'] === 'file') {
-        const content = await dbx.filesDownload({ path: file.path_lower });
-        const blob = content.result.fileBlob || content.fileBlob;
-        const text = await blob.text();
+    for (const file of folder.entries) {
+      const content = await dbx.filesDownload({ path: file.path_lower });
+      const text = new TextDecoder().decode(content.fileBinary);
 
-        try {
-          const json = JSON.parse(text);
-          displayNote(json);
-        } catch (e) {
-          console.warn("Archivo no es JSON válido:", file.name, text);
-        }
+      try {
+        const json = JSON.parse(text);
+        displayNote(json);
+      } catch (e) {
+        console.warn("Archivo no es JSON válido:", file.name);
       }
     }
   } catch (err) {
@@ -57,12 +55,12 @@ async function syncNotes() {
   }
 }
 
-
 function displayNote(note) {
   const notesDiv = document.getElementById("notes");
   const div = document.createElement("div");
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
 
