@@ -32,18 +32,30 @@ async function syncNotes() {
 
   const dbx = new Dropbox.Dropbox({
     accessToken: token,
-    fetch: (...args) => fetch(...args)  // FIX
+    fetch: (...args) => fetch(...args)
   });
 
   try {
+    // Listar archivos directamente en la raíz de la app folder
     const folder = await dbx.filesListFolder({ path: '' });
     console.log("Entries de la app folder:", folder.entries);
 
     document.getElementById("notes").innerHTML = "";
 
     for (const file of folder.entries) {
+      if (file[".tag"] !== "file") continue;
+
       const content = await dbx.filesDownload({ path: file.path_lower });
-      const text = new TextDecoder().decode(content.fileBinary);
+      let text;
+
+      if (content.fileBinary) {
+        text = new TextDecoder().decode(content.fileBinary);
+      } else if (content.fileBlob) {
+        text = await content.fileBlob.text();
+      } else {
+        console.warn("Formato desconocido:", file.name);
+        continue;
+      }
 
       try {
         const json = JSON.parse(text);
@@ -57,12 +69,14 @@ async function syncNotes() {
   }
 }
 
+
 function displayNote(note) {
   const notesDiv = document.getElementById("notes");
   const div = document.createElement("div");
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
 
 
