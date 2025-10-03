@@ -41,8 +41,12 @@ async function syncNotes() {
 
   try {
     // Lista archivos en la raíz de la app folder
-    const folder = await dbx.filesListFolder({ path: '' });
-    console.log("Archivos en la app folder:", folder.entries);
+    try {
+      const folder = await dbx.filesListFolder({ path: '' });
+      console.log("Archivos en la app folder:", folder.entries);
+    } catch(err) {
+      console.error("Error al listar carpeta:", err.error_summary || err);
+    }
 
     document.getElementById("notes").innerHTML = "";
 
@@ -73,4 +77,5 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
