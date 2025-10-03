@@ -1,14 +1,18 @@
-const APP_KEY = "9j2w7gkmnw7looi"; // pon aquí tu App Key de Dropbox
+const APP_KEY = "9j2w7gkmnw7looi"; // reemplaza con tu App Key de Dropbox
 
+// ------------------- Login -------------------
 document.getElementById("loginBtn").addEventListener("click", () => {
+  sessionStorage.removeItem("dropboxToken"); // limpia token viejo
   const redirectUri = encodeURIComponent(window.location.href);
   const authUrl = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${APP_KEY}&redirect_uri=${redirectUri}`;
   window.location.href = authUrl;
 });
 
-window.addEventListener("load", async () => {
-  if (window.location.hash) {
-    const params = new URLSearchParams(window.location.hash.slice(1));
+// Detecta token después del login
+window.addEventListener("load", () => {
+  const hash = window.location.hash;
+  if (hash) {
+    const params = new URLSearchParams(hash.slice(1));
     const accessToken = params.get("access_token");
     if (accessToken) {
       sessionStorage.setItem("dropboxToken", accessToken);
@@ -24,45 +28,43 @@ function showDashboard() {
   document.getElementById("dashboard").style.display = "block";
 }
 
+// ------------------- Sync Notes -------------------
 document.getElementById("syncBtn").addEventListener("click", syncNotes);
 
 async function syncNotes() {
   const token = sessionStorage.getItem("dropboxToken");
   if (!token) return alert("Debes iniciar sesión primero");
 
-  const dbx = new Dropbox.Dropbox({
-    accessToken: token,
-    fetch: (...args) => fetch(...args)
-  });
+  const dbx = new Dropbox.Dropbox({ accessToken: token });
 
   try {
-   
-   const folder = await dbx.filesListFolder({ path: '' });
-   console.log("Contenido de la app folder:", folder.entries);
+    // Lista archivos en la raíz de la app folder
+    const folder = await dbx.filesListFolder({ path: '' });
+    console.log("Archivos en la app folder:", folder.entries);
 
     document.getElementById("notes").innerHTML = "";
 
     for (const file of folder.entries) {
       if (file[".tag"] !== "file") continue;
-    
+
+      // Descargar archivo
+      const content = await dbx.filesDownload({ path: file.path_lower });
+      const blob = content.result?.fileBlob || content.fileBlob;
+      const text = await blob.text();
+
       try {
-        const content = await dbx.filesDownload({ path: file.path_lower });
-        const blob = content.result?.fileBlob || content.fileBlob; // soporte para ambas versiones
-        const text = await blob.text(); // convierte blob a string
-    
         const json = JSON.parse(text);
         displayNote(json);
       } catch (e) {
-        console.warn("No se pudo procesar el archivo:", file.name, e);
+        console.warn("Archivo no es JSON válido:", file.name);
       }
     }
-
   } catch (err) {
-    console.error("Error en syncNotes:", err);
+    console.error("Error en syncNotes:", err.error_summary || err);
   }
 }
 
-
+// ------------------- Display -------------------
 function displayNote(note) {
   const notesDiv = document.getElementById("notes");
   const div = document.createElement("div");
