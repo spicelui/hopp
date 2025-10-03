@@ -44,26 +44,19 @@ async function syncNotes() {
 
     for (const file of folder.entries) {
       if (file[".tag"] !== "file") continue;
-
-      const content = await dbx.filesDownload({ path: file.path_lower });
-      let text;
-
-      if (content.fileBinary) {
-        text = new TextDecoder().decode(content.fileBinary);
-      } else if (content.fileBlob) {
-        text = await content.fileBlob.text();
-      } else {
-        console.warn("Formato desconocido:", file.name);
-        continue;
-      }
-
+    
       try {
+        const content = await dbx.filesDownload({ path: file.path_lower });
+        const blob = content.result?.fileBlob || content.fileBlob; // soporte para ambas versiones
+        const text = await blob.text(); // convierte blob a string
+    
         const json = JSON.parse(text);
         displayNote(json);
       } catch (e) {
-        console.warn("Archivo no es JSON válido:", file.name);
+        console.warn("No se pudo procesar el archivo:", file.name, e);
       }
     }
+
   } catch (err) {
     console.error("Error en syncNotes:", err);
   }
@@ -76,6 +69,7 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
 
 
