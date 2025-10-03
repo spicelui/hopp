@@ -1,0 +1,19 @@
+body {
+  font-family: sans-serif;
+  margin: 20px;
+  background-color: #f5f5f5;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 10px 0;
+  cursor: pointer;
+}
+
+#notes div {
+  background: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap; /* conserva saltos de línea del cuerpo de la nota */
+}
