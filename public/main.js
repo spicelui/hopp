@@ -1,7 +1,7 @@
 const APP_KEY = "9j2w7gkmnw7looi"; // pon aquí tu App Key de Dropbox
 
 document.getElementById("loginBtn").addEventListener("click", () => {
-  const redirectUri = encodeURIComponent(window.location.href);
+  const redirectUri = encodeURIComponent('https://spicelui.github.io/hopp/public/index.html');
   const authUrl = `https://www.dropbox.com/oauth2/authorize?response_type=token&client_id=${APP_KEY}&redirect_uri=${redirectUri}`;
   window.location.href = authUrl;
 });
@@ -57,3 +57,4 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
