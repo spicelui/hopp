@@ -31,10 +31,8 @@ async function syncNotes() {
   if (!token) return alert("Debes iniciar sesión primero");
 
   const dbx = new Dropbox.Dropbox({
-    accessToken: token,
-    fetch: window.fetch
+    accessToken: token
   });
-
 
   try {
     const folder = await dbx.filesListFolder({ path: '/journal' });
@@ -66,4 +64,5 @@ function displayNote(note) {
   div.innerHTML = `<strong>${note.titulo}</strong> <br> <em>${note.fecha}</em> <br> ${note.cuerpo}`;
   notesDiv.appendChild(div);
 }
+
 
